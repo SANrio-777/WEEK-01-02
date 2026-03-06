@@ -1,36 +1,53 @@
-import java.util.*;
-
 public class Week01_02 {
 
-    HashMap<String, Integer> searchFrequency = new HashMap<>();
+    static class ParkingSpot {
+        String plate;
+        boolean occupied;
 
-    public void addQuery(String query) {
-        searchFrequency.put(query, searchFrequency.getOrDefault(query, 0) + 1);
+        ParkingSpot() {
+            occupied = false;
+        }
     }
 
-    public List<String> getSuggestions(String prefix) {
-        List<String> suggestions = new ArrayList<>();
+    ParkingSpot[] table = new ParkingSpot[500];
 
-        for (String query : searchFrequency.keySet()) {
-            if (query.startsWith(prefix)) {
-                suggestions.add(query);
-            }
+    public Week01_02() {
+        for (int i = 0; i < table.length; i++)
+            table[i] = new ParkingSpot();
+    }
+
+    int hash(String plate) {
+        return Math.abs(plate.hashCode()) % table.length;
+    }
+
+    public int parkVehicle(String plate) {
+        int index = hash(plate);
+
+        while (table[index].occupied) {
+            index = (index + 1) % table.length;
         }
 
-        suggestions.sort((a, b) ->
-                searchFrequency.get(b) - searchFrequency.get(a));
+        table[index].plate = plate;
+        table[index].occupied = true;
 
-        return suggestions.subList(0, Math.min(10, suggestions.size()));
+        return index;
+    }
+
+    public void exitVehicle(String plate) {
+
+        for (int i = 0; i < table.length; i++) {
+            if (table[i].occupied && table[i].plate.equals(plate)) {
+                table[i].occupied = false;
+                System.out.println("Vehicle exited spot " + i);
+            }
+        }
     }
 
     public static void main(String[] args) {
 
-        Week01_02 auto = new Week01_02();
+        Week01_02 parking = new Week01_02();
 
-        auto.addQuery("java tutorial");
-        auto.addQuery("javascript guide");
-        auto.addQuery("java download");
-
-        System.out.println(auto.getSuggestions("jav"));
+        System.out.println("Parked at spot " + parking.parkVehicle("ABC123"));
+        parking.exitVehicle("ABC123");
     }
 }
