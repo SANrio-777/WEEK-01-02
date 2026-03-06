@@ -1,53 +1,36 @@
+import java.util.*;
+
 public class Week01_02 {
 
-    static class ParkingSpot {
-        String plate;
-        boolean occupied;
+    public List<int[]> findTwoSum(int[] nums, int target) {
 
-        ParkingSpot() {
-            occupied = false;
-        }
-    }
+        HashMap<Integer, Integer> map = new HashMap<>();
+        List<int[]> result = new ArrayList<>();
 
-    ParkingSpot[] table = new ParkingSpot[500];
+        for (int i = 0; i < nums.length; i++) {
 
-    public Week01_02() {
-        for (int i = 0; i < table.length; i++)
-            table[i] = new ParkingSpot();
-    }
+            int complement = target - nums[i];
 
-    int hash(String plate) {
-        return Math.abs(plate.hashCode()) % table.length;
-    }
-
-    public int parkVehicle(String plate) {
-        int index = hash(plate);
-
-        while (table[index].occupied) {
-            index = (index + 1) % table.length;
-        }
-
-        table[index].plate = plate;
-        table[index].occupied = true;
-
-        return index;
-    }
-
-    public void exitVehicle(String plate) {
-
-        for (int i = 0; i < table.length; i++) {
-            if (table[i].occupied && table[i].plate.equals(plate)) {
-                table[i].occupied = false;
-                System.out.println("Vehicle exited spot " + i);
+            if (map.containsKey(complement)) {
+                result.add(new int[]{map.get(complement), i});
             }
+
+            map.put(nums[i], i);
         }
+
+        return result;
     }
 
     public static void main(String[] args) {
 
-        Week01_02 parking = new Week01_02();
+        Week01_02 detector = new Week01_02();
 
-        System.out.println("Parked at spot " + parking.parkVehicle("ABC123"));
-        parking.exitVehicle("ABC123");
+        int[] transactions = {500, 300, 200};
+
+        List<int[]> pairs = detector.findTwoSum(transactions, 500);
+
+        for (int[] p : pairs) {
+            System.out.println("Pair: " + p[0] + " " + p[1]);
+        }
     }
 }
