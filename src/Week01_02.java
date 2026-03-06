@@ -1,49 +1,36 @@
-import java.util.HashMap;
+import java.util.*;
 
 public class Week01_02 {
 
-    static class TokenBucket {
-        int tokens;
-        long lastRefillTime;
-        int maxTokens;
-        int refillRate;
+    HashMap<String, Integer> searchFrequency = new HashMap<>();
 
-        TokenBucket(int maxTokens, int refillRate) {
-            this.tokens = maxTokens;
-            this.maxTokens = maxTokens;
-            this.refillRate = refillRate;
-            this.lastRefillTime = System.currentTimeMillis();
-        }
-
-        void refill() {
-            long now = System.currentTimeMillis();
-            long seconds = (now - lastRefillTime) / 1000;
-            int refill = (int) seconds * refillRate;
-            tokens = Math.min(maxTokens, tokens + refill);
-            lastRefillTime = now;
-        }
-
-        boolean allowRequest() {
-            refill();
-            if (tokens > 0) {
-                tokens--;
-                return true;
-            }
-            return false;
-        }
+    public void addQuery(String query) {
+        searchFrequency.put(query, searchFrequency.getOrDefault(query, 0) + 1);
     }
 
-    HashMap<String, TokenBucket> clients = new HashMap<>();
+    public List<String> getSuggestions(String prefix) {
+        List<String> suggestions = new ArrayList<>();
 
-    public boolean checkRateLimit(String clientId) {
-        clients.putIfAbsent(clientId, new TokenBucket(1000, 1));
-        return clients.get(clientId).allowRequest();
+        for (String query : searchFrequency.keySet()) {
+            if (query.startsWith(prefix)) {
+                suggestions.add(query);
+            }
+        }
+
+        suggestions.sort((a, b) ->
+                searchFrequency.get(b) - searchFrequency.get(a));
+
+        return suggestions.subList(0, Math.min(10, suggestions.size()));
     }
 
     public static void main(String[] args) {
-        Week01_02 limiter = new Week01_02();
 
-        System.out.println(limiter.checkRateLimit("client1"));
-        System.out.println(limiter.checkRateLimit("client1"));
+        Week01_02 auto = new Week01_02();
+
+        auto.addQuery("java tutorial");
+        auto.addQuery("javascript guide");
+        auto.addQuery("java download");
+
+        System.out.println(auto.getSuggestions("jav"));
     }
 }
