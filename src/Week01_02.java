@@ -2,35 +2,41 @@ import java.util.*;
 
 public class Week01_02 {
 
-    public List<int[]> findTwoSum(int[] nums, int target) {
+    LinkedHashMap<String, String> L1 =
+            new LinkedHashMap<>(10000, 0.75f, true) {
+                protected boolean removeEldestEntry(Map.Entry eldest) {
+                    return size() > 10000;
+                }
+            };
 
-        HashMap<Integer, Integer> map = new HashMap<>();
-        List<int[]> result = new ArrayList<>();
+    HashMap<String, String> L2 = new HashMap<>();
 
-        for (int i = 0; i < nums.length; i++) {
+    public String getVideo(String videoId) {
 
-            int complement = target - nums[i];
-
-            if (map.containsKey(complement)) {
-                result.add(new int[]{map.get(complement), i});
-            }
-
-            map.put(nums[i], i);
+        if (L1.containsKey(videoId)) {
+            System.out.println("L1 HIT");
+            return L1.get(videoId);
         }
 
-        return result;
+        if (L2.containsKey(videoId)) {
+            System.out.println("L2 HIT → Promoted to L1");
+            String data = L2.get(videoId);
+            L1.put(videoId, data);
+            return data;
+        }
+
+        System.out.println("Database HIT → Added to L2");
+        String data = "VideoData_" + videoId;
+        L2.put(videoId, data);
+
+        return data;
     }
 
     public static void main(String[] args) {
 
-        Week01_02 detector = new Week01_02();
+        Week01_02 cache = new Week01_02();
 
-        int[] transactions = {500, 300, 200};
-
-        List<int[]> pairs = detector.findTwoSum(transactions, 500);
-
-        for (int[] p : pairs) {
-            System.out.println("Pair: " + p[0] + " " + p[1]);
-        }
+        cache.getVideo("video123");
+        cache.getVideo("video123");
     }
 }
