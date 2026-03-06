@@ -4,22 +4,29 @@ public class Week01_02 {
 
     HashMap<String, Integer> attempts = new HashMap<>();
 
-    public void trackAttempt(String username) {
+    public String getMostAttempted() {
 
-        if (attempts.containsKey(username)) {
-            attempts.put(username, attempts.get(username) + 1);
-        } else {
-            attempts.put(username, 1);
+        String maxUser = "";
+        int max = 0;
+
+        for (String user : attempts.keySet()) {
+            if (attempts.get(user) > max) {
+                max = attempts.get(user);
+                maxUser = user;
+            }
         }
 
-        System.out.println(username + " attempts: " + attempts.get(username));
+        return maxUser;
     }
 
     public static void main(String[] args) {
 
         Week01_02 app = new Week01_02();
 
-        app.trackAttempt("john");
-        app.trackAttempt("john");
+        app.attempts.put("john", 3);
+        app.attempts.put("alex", 5);
+        app.attempts.put("sam", 2);
+
+        System.out.println("Most attempted username: " + app.getMostAttempted());
     }
 }
