@@ -2,31 +2,48 @@ import java.util.HashMap;
 
 public class Week01_02 {
 
-    HashMap<String, Integer> attempts = new HashMap<>();
+    static class TokenBucket {
+        int tokens;
+        long lastRefillTime;
+        int maxTokens;
+        int refillRate;
 
-    public String getMostAttempted() {
-
-        String maxUser = "";
-        int max = 0;
-
-        for (String user : attempts.keySet()) {
-            if (attempts.get(user) > max) {
-                max = attempts.get(user);
-                maxUser = user;
-            }
+        TokenBucket(int maxTokens, int refillRate) {
+            this.tokens = maxTokens;
+            this.maxTokens = maxTokens;
+            this.refillRate = refillRate;
+            this.lastRefillTime = System.currentTimeMillis();
         }
 
-        return maxUser;
+        void refill() {
+            long now = System.currentTimeMillis();
+            long seconds = (now - lastRefillTime) / 1000;
+            int refill = (int) seconds * refillRate;
+            tokens = Math.min(maxTokens, tokens + refill);
+            lastRefillTime = now;
+        }
+
+        boolean allowRequest() {
+            refill();
+            if (tokens > 0) {
+                tokens--;
+                return true;
+            }
+            return false;
+        }
+    }
+
+    HashMap<String, TokenBucket> clients = new HashMap<>();
+
+    public boolean checkRateLimit(String clientId) {
+        clients.putIfAbsent(clientId, new TokenBucket(1000, 1));
+        return clients.get(clientId).allowRequest();
     }
 
     public static void main(String[] args) {
+        Week01_02 limiter = new Week01_02();
 
-        Week01_02 app = new Week01_02();
-
-        app.attempts.put("john", 3);
-        app.attempts.put("alex", 5);
-        app.attempts.put("sam", 2);
-
-        System.out.println("Most attempted username: " + app.getMostAttempted());
+        System.out.println(limiter.checkRateLimit("client1"));
+        System.out.println(limiter.checkRateLimit("client1"));
     }
 }
